@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { SHA3 } from './components/sha3'
 import { SHA3 as NodeSHA3 } from 'sha3';
+import { Buffer } from 'buffer';
 import './App.css'
 
 function App() {
@@ -32,9 +33,12 @@ function App() {
     const ownHash = Array.from(hash).map(b => b.toString(16).padStart(2, '0')).join('');
     setOutput(ownHash);
 
+    // Convert Uint8Array to Buffer for node's sha3 library
+    const bufferData = Buffer.from(inputData);
+
     // Compare with sha3 library - FIPS 202 implementation
     const nodeSha3 = new NodeSHA3(bits);
-    nodeSha3.update(inputData);
+    nodeSha3.update(bufferData);
     const nodeSha3Hash = nodeSha3.digest('hex');
 
     setComparisonResults([
