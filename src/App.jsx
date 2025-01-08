@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { SHA3 } from './components/sha3'
+import { SHA3 as NodeSHA3 } from 'sha3';
 import './App.css'
 
 function App() {
@@ -7,6 +8,7 @@ function App() {
   const [output, setOutput] = useState('');
   const [file, setFile] = useState(null);
   const [bits, setBits] = useState(256);
+  const [comparisonResults, setComparisonResults] = useState([]);
 
   const standards = {
     224: { rate: 1152, capacity: 448 },
@@ -27,7 +29,18 @@ function App() {
     }
 
     const hash = sha3.absorb(inputData).squeeze();
-    setOutput(Array.from(hash).map(b => b.toString(16).padStart(2, '0')).join(''));
+    const ownHash = Array.from(hash).map(b => b.toString(16).padStart(2, '0')).join('');
+    setOutput(ownHash);
+
+    // Compare with sha3 library - FIPS 202 implementation
+    const nodeSha3 = new NodeSHA3(bits);
+    nodeSha3.update(inputData);
+    const nodeSha3Hash = nodeSha3.digest('hex');
+
+    setComparisonResults([
+      { library: 'Own Implementation', hash: ownHash },
+      { library: 'sha3 (node)', hash: nodeSha3Hash },
+    ]);
   };
 
   return (
@@ -85,6 +98,19 @@ function App() {
           <div className="form-group">
             <label>SHA-3 Hash:</label>
             <div className="output-box">{output}</div>
+          </div>
+        )}
+
+        {comparisonResults.length > 0 && (
+          <div className="form-group">
+            <h2>Comparison Results</h2>
+            <ul>
+              {comparisonResults.map((result, index) => (
+                <li key={index}>
+                  <strong>{result.library}:</strong> {result.hash}
+                </li>
+              ))}
+            </ul>
           </div>
         )}
       </div>

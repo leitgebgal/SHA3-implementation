@@ -1,5 +1,4 @@
 import { KeccakState } from "./keccakState";
-import { fromString } from "../utils/cryptoUtils";
 
 export class SHA3 {
     constructor(outputBits = 256) {
@@ -14,7 +13,6 @@ export class SHA3 {
     // Absorption phase: absorb input data into the state
     absorb(data) {
         let input;
-        console.log(typeof data);
         if (typeof data === 'string') {
             // Handle string input
             input = new TextEncoder().encode(data);
